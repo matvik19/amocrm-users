@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    container_name: users_amo_db
+    command: -p 1818
+    expose:
+      - 1818
+    env_file:
+      - .env-non-dev
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: amocrm_users
+    command: ["/amocrm_users/docker/app.sh"]
+    ports:
+      - 7000:8000
+    depends_on:
+      - db

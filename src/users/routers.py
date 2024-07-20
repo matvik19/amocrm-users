@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_async_session
 from src.users.models import Users
-from src.users.schemas import UserCreate, UserResponse, TokensResponse
+from src.users.schemas import UserCreate, UserResponse, TokensResponse, TokensRead
 from src.users.services import create_user, get_tokens_from_db, get_client_secret_redirect_url
 from src.users.tokens_init import initialize_token_manager, get_new_tokens
 
@@ -52,11 +52,11 @@ async def add_user(user: UserCreate, session: AsyncSession = Depends(get_async_s
 
 
 @router.get("/get_user_tokens", response_model=TokensResponse)
-async def get_tokens(subdomain: str, client_id: str, session: AsyncSession = Depends(get_async_session)):
+async def get_tokens(data: TokensRead, session: AsyncSession = Depends(get_async_session)):
     """Запрос на получение токенов пользователя из базы данных"""
 
     try:
-        tokens = await get_tokens_from_db(subdomain, client_id, session)
+        tokens = await get_tokens_from_db(data.subdomain, data.client_id, session)
 
         return tokens
 
