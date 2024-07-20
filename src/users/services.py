@@ -1,20 +1,52 @@
+from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import Users
+from .models import Users, Widgets
 from .schemas import UserCreate
 
 
-async def create_user(user: UserCreate, session: AsyncSession):
+async def create_user(client_id: str, subdomain: str,
+                      access_token: str, refresh_token: str, session: AsyncSession) -> Users:
     """Создание пользователя в бд"""
 
     new_user = Users(
-        client_id=user.client_id,
-        subdomain=user.subdomain,
-        access_token=user.access_token,
-        refresh_token=user.refresh_token,
+        client_id=client_id,
+        subdomain=subdomain,
+        access_token=access_token,
+        refresh_token=refresh_token,
     )
 
     session.add(new_user)
     await session.commit()
-
     return new_user
+
+
+async def get_tokens_from_db(subdomain: str, client_id: str, session: AsyncSession):
+    """Запрос на получение токенов пользователя из базы данных"""
+
+    query = select(Users.access_token, Users.refresh_token).filter_by(
+        subdomain=subdomain,
+        client_id=client_id
+    )
+    result = await session.execute(query)
+    tokens_from_db = result.first()
+
+    return {
+        "access_token": tokens_from_db.access_token,
+        "refresh_token": tokens_from_db.refresh_token
+    }
+
+
+
+async def get_client_secret_redirect_url(client_id: str, session: AsyncSession):
+    """Запрос на получение client_secret, redirect_url из базы данных"""
+
+    query = select(Widgets.client_secret, Widgets.redirect_url).filter_by(
+        client_id=client_id
+    )
+
+    result = await session.execute(query)
+    fields = result.first()
+
+    return fields
