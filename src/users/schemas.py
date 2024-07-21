@@ -14,11 +14,6 @@ class UserResponse(BaseModel):
     refresh_token: str
 
 
-class TokensRead(BaseModel):
-    subdomain: str
-    client_id: str
-
-
 class TokensResponse(BaseModel):
     access_token: str
     refresh_token: str

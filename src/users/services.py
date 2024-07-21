@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .exceptions import UserAlreadyExistsException, UserNotFoundException
 from .models import Users, Widgets
 from .schemas import UserCreate
 
@@ -32,11 +33,13 @@ async def get_tokens_from_db(subdomain: str, client_id: str, session: AsyncSessi
     result = await session.execute(query)
     tokens_from_db = result.first()
 
+    if tokens_from_db is None:
+        raise UserNotFoundException()
+
     return {
         "access_token": tokens_from_db.access_token,
         "refresh_token": tokens_from_db.refresh_token
     }
-
 
 
 async def get_client_secret_redirect_url(client_id: str, session: AsyncSession):
@@ -50,3 +53,14 @@ async def get_client_secret_redirect_url(client_id: str, session: AsyncSession):
     fields = result.first()
 
     return fields
+
+
+async def check_user_exists(client_id: str, subdomain: str, session: AsyncSession):
+    """Запрос на существование пользователя"""
+
+    query = select(Users).filter_by(client_id=client_id, subdomain=subdomain)
+    result = await session.execute(query)
+    user = result.scalars().first()
+
+    if user:
+        raise UserAlreadyExistsException()
