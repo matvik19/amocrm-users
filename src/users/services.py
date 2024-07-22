@@ -1,8 +1,10 @@
+from typing import Tuple
+
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .exceptions import UserAlreadyExistsException, UserNotFoundException
+from .exceptions import UserAlreadyExistsException, UserNotFoundException, WidgetNotFoundException
 from .models import Users, Widgets
 from .schemas import UserCreate
 
@@ -23,7 +25,7 @@ async def create_user(client_id: str, subdomain: str,
     return new_user
 
 
-async def get_tokens_from_db(subdomain: str, client_id: str, session: AsyncSession):
+async def get_tokens_from_db(subdomain: str, client_id: str, session: AsyncSession) -> Tuple[str, str]:
     """Запрос на получение токенов пользователя из базы данных"""
 
     query = select(Users.access_token, Users.refresh_token).filter_by(
@@ -36,13 +38,10 @@ async def get_tokens_from_db(subdomain: str, client_id: str, session: AsyncSessi
     if tokens_from_db is None:
         raise UserNotFoundException()
 
-    return {
-        "access_token": tokens_from_db.access_token,
-        "refresh_token": tokens_from_db.refresh_token
-    }
+    return tokens_from_db.access_token, tokens_from_db.refresh_token
 
 
-async def get_client_secret_redirect_url(client_id: str, session: AsyncSession):
+async def get_client_secret_redirect_url(client_id: str, session: AsyncSession) -> Tuple[str, str]:
     """Запрос на получение client_secret, redirect_url из базы данных"""
 
     query = select(Widgets.client_secret, Widgets.redirect_url).filter_by(
@@ -52,10 +51,13 @@ async def get_client_secret_redirect_url(client_id: str, session: AsyncSession):
     result = await session.execute(query)
     fields = result.first()
 
-    return fields
+    if fields is None:
+        raise WidgetNotFoundException()
+
+    return fields.client_secret, fields.redirect_url
 
 
-async def check_user_exists(client_id: str, subdomain: str, session: AsyncSession):
+async def check_user_exists(client_id: str, subdomain: str, session: AsyncSession) -> None:
     """Запрос на существование пользователя"""
 
     query = select(Users).filter_by(client_id=client_id, subdomain=subdomain)

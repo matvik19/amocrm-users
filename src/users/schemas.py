@@ -8,10 +8,9 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
+    id: int
     client_id: str
     subdomain: str
-    access_token: str
-    refresh_token: str
 
 
 class TokensResponse(BaseModel):

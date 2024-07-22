@@ -1,8 +1,12 @@
+from typing import Tuple
+
 import aiohttp
 from amocrm.v2 import tokens
 
 
-async def initialize_token_manager(client_id, client_secret, subdomain, code, redirect_url):
+async def initialize_token_manager(
+        client_id: str, client_secret: str, subdomain: str, code: str, redirect_url: str
+) -> Tuple[str, str]:
     """Инициализация менеджера токенов. Первое получение access токена и refresh"""
 
     storage = tokens.MemoryTokensStorage()
@@ -25,8 +29,8 @@ async def initialize_token_manager(client_id, client_secret, subdomain, code, re
     return access_token, refresh_token
 
 
-async def get_new_tokens(subdomain: str, refresh_token: str, client_id: str, client_secret: str):
-    """Повторное получение новых токенов с помощью refresh_token"""
+async def get_new_tokens(subdomain: str, refresh_token: str, client_id: str, client_secret: str) -> Tuple[str, str]:
+    """Получение новых токенов с помощью refresh_token"""
 
     url = f"https://{subdomain}.amocrm.ru/oauth2/access_token"
     headers = {
