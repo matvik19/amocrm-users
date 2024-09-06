@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.users.routers import router as router_users
+from src.widgets.routers import router as router_widgets
+
 from tasks import activate_background_task
 
 app = FastAPI(title="Allocation widget")
@@ -17,6 +19,8 @@ app.add_middleware(
 
 
 app.include_router(router_users)
+app.include_router(router_widgets)
+
 
 
 @app.on_event("startup")
