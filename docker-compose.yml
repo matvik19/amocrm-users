@@ -8,9 +8,8 @@ services:
   db:
     image: postgres:latest
     container_name: users_amo_db
-    command: -p 1818
-    expose:
-      - 1818
+    ports:
+      - 5432:5432
     env_file:
       - .env-non-dev
     networks:
