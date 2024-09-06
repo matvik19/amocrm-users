@@ -1,4 +1,9 @@
 version: "3.8"
+networks:
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
 services:
   db:
     image: postgres:latest
@@ -8,15 +13,18 @@ services:
       - 1818
     env_file:
       - .env-non-dev
+    networks:
+      - app_net
 
   app:
     build:
       context: .
     env_file:
       - .env-non-dev
-    container_name: amocrm_users
-    command: ["/amocrm_users/docker/app.sh"]
+    container_name: fastapi_app
     ports:
       - 7000:8000
     depends_on:
       - db
+    networks:
+      - app_net

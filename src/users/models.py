@@ -12,12 +12,3 @@ class Users(Base):
     access_token = Column(String, nullable=False)
     refresh_token = Column(String, nullable=False)
     date_of_refresh = Column(TIMESTAMP, nullable=False, default=datetime.utcnow)
-
-
-class Widgets(Base):
-    __tablename__ = "widgets"
-
-    id = Column(Integer, primary_key=True)
-    client_id = Column(String, nullable=False)
-    client_secret = Column(String, nullable=False)
-    redirect_url = Column(String, nullable=False)

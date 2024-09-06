@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update
@@ -60,3 +61,5 @@ async def get_tokens(client_id: str, subdomain: str,
         logging.exception(
             f"Value error during get tokens. User: {client_id}, Subdomain: {subdomain}, Error: {e}")
         raise HTTPException(status_code=500, detail="Error getting user token")
+
+

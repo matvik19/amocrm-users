@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .exceptions import UserAlreadyExistsException, UserNotFoundException, WidgetNotFoundException
-from .models import Users, Widgets
+from .models import Users
 from .schemas import UserCreate
+from ..widgets.models import Widgets
 
 
 async def create_user(client_id: str, subdomain: str,
