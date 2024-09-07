@@ -14,6 +14,21 @@ router = APIRouter(prefix="/widgets", tags=["Widgets"])
 @router.post("/add_widget", response_model=WidgetResponse)
 async def add_widget(widget: WidgetCreate, session: AsyncSession = Depends(get_async_session)) -> WidgetResponse:
     """Добавление нового виджета в базу данных"""
+    existing_widget = await session.execute(
+        select(Widgets).where(
+            Widgets.client_id == widget.client_id,
+            Widgets.redirect_url == widget.redirect_url
+        )
+    )
+    existing_widget = existing_widget.scalars().first()
+
+    if existing_widget:
+        raise HTTPException(
+            status_code=400,
+            detail="A widget with the same client_id and redirect_url already exists."
+        )
+
+    # Если виджет не найден, создаем новый
     new_widget = Widgets(
         client_id=widget.client_id,
         client_secret=widget.client_secret,
