@@ -11,7 +11,8 @@ from src.users.exceptions import UserAlreadyExistsException, UserNotFoundExcepti
 from src.users.models import Users
 from src.users.schemas import UserCreate, UserResponse, TokensResponse
 from src.users.services import create_user, get_tokens_from_db, get_client_secret_redirect_url, check_user_exists
-from src.users.tokens_init import initialize_token_manager, get_new_tokens
+from src.users.tokens_init import initialize_token_manager
+from loguru import logger
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -34,13 +35,13 @@ async def add_user(user: UserCreate, session: AsyncSession = Depends(get_async_s
         return UserResponse(id=new_user.id, client_id=new_user.client_id, subdomain=new_user.subdomain)
 
     except UserAlreadyExistsException:
-        logging.exception("User with this client_id and subdomain already exists")
+        logger.error("User with this client_id and subdomain already exists")
         raise
     except WidgetNotFoundException:
-        logging.exception("Widget with this client_id don't exists")
+        logger.error("Widget with this client_id don't exists")
         raise
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"Value error during user creation. Client_id: {user.client_id}, Subdomain: {user.subdomain}, Error: {e}")
         raise HTTPException(status_code=500, detail="User creation error")
 
@@ -55,10 +56,10 @@ async def get_tokens(client_id: str, subdomain: str,
         return TokensResponse(access_token=tokens[0], refresh_token=tokens[1])
 
     except UserNotFoundException:
-        logging.exception("User with client_id and subdomain not found")
+        logger.error("User with client_id and subdomain not found")
         raise
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"Value error during get tokens. User: {client_id}, Subdomain: {subdomain}, Error: {e}")
         raise HTTPException(status_code=500, detail="Error getting user token")
 

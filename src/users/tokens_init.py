@@ -1,6 +1,8 @@
 from typing import Tuple
+from loguru import logger
 
 import aiohttp
+from fastapi import HTTPException
 
 
 async def initialize_token_manager(
@@ -24,23 +26,34 @@ async def initialize_token_manager(
     try:
         async with aiohttp.ClientSession() as client_session:
             async with client_session.post(url, json=body, headers=headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    access_token = data.get("access_token")
-                    refresh_token = data.get("refresh_token")
+                # Проверяем статус ответа
+                response.raise_for_status()
 
-                    if not access_token or not refresh_token:
-                        raise ValueError("Missing tokens in response")
+                data = await response.json()
+                access_token = data.get("access_token")
+                refresh_token = data.get("refresh_token")
 
-                    return access_token, refresh_token
-                else:
-                    error_message = await response.text()
-                    raise ValueError(f"Failed to fetch tokens: {error_message}")
+                if not access_token or not refresh_token:
+                    logger.error(f"Failed to receive tokens from the server")
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Tokens not found in server response"
+                    )
 
-    except aiohttp.ClientError as e:
-        raise ValueError(f"HTTP client error: {e}")
+                return access_token, refresh_token
+
+    except aiohttp.ClientError as client_err:
+        logger.error(f"Network error while getting tokens for {subdomain}: Error {client_err}")
+        raise HTTPException(status_code=502, detail="Bad Gateway - Error connecting to AmoCRM")
+
     except Exception as e:
-        raise ValueError(f"Unexpected error: {e}")
+        logger.exception(
+            f"Error when receiving access and refresh token for {subdomain}:{client_id}. Error: {e}"
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Error when receiving access and refresh token."
+        )
 
 
 async def get_new_tokens(subdomain: str, refresh_token: str, client_id: str, client_secret: str) -> Tuple[str, str]:
@@ -50,6 +63,7 @@ async def get_new_tokens(subdomain: str, refresh_token: str, client_id: str, cli
     headers = {
         "Content-Type": "application/json",
     }
+
     body = {
         "client_id": client_id,
         "client_secret": client_secret,
@@ -60,20 +74,31 @@ async def get_new_tokens(subdomain: str, refresh_token: str, client_id: str, cli
     try:
         async with aiohttp.ClientSession() as client_session:
             async with client_session.post(url, json=body, headers=headers) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    new_access_token = data.get("access_token")
-                    new_refresh_token = data.get("refresh_token")
+                # Проверяем статус ответа
+                response.raise_for_status()
 
-                    if not new_access_token and not new_refresh_token:
-                        raise ValueError("Missing tokens in response")
+                data = await response.json()
+                new_access_token = data.get("access_token")
+                new_refresh_token = data.get("refresh_token")
 
-                    return new_access_token, new_refresh_token
-                else:
-                    error_message = await response.text()
-                    raise ValueError(f"Failed to fetch tokens: {error_message}")
+                if not new_access_token or not new_refresh_token:
+                    logger.error(f"Failed to receive NEW tokens from the server")
+                    raise HTTPException(
+                        status_code=500,
+                        detail="New tokens not found in server response"
+                    )
 
-    except aiohttp.ClientError as e:
-        raise ValueError(f"HTTP client error: {e}")
+                return new_access_token, new_refresh_token
+
+    except aiohttp.ClientError as client_err:
+        logger.error(f"Network error while getting tokens for {subdomain}: Error {client_err}")
+        raise HTTPException(status_code=502, detail="Bad Gateway - Error connecting to AmoCRM")
+
     except Exception as e:
-        raise ValueError(f"Unexpected error: {e}")
+        logger.exception(
+            f"Error when receiving NEW access and refresh token for {subdomain}:{client_id}. Error: {e}"
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Error when receiving NEW access and refresh token."
+        )
