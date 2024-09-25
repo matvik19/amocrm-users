@@ -47,18 +47,18 @@ async def update_tokens():
         raise ValueError(f"Ошибка записи новых токенов: {e}")
 
 
-def activate_background_task():
-    """Запуск фоновой задачи update_tokens"""
-
-    scheduler = AsyncIOScheduler()
-    trigger = CronTrigger(hour=16, minute=0)
-    scheduler.add_job(update_tokens, trigger)
-    scheduler.start()
-
-
 # def activate_background_task():
 #     """Запуск фоновой задачи update_tokens"""
 #
 #     scheduler = AsyncIOScheduler()
-#     scheduler.add_job(update_tokens, IntervalTrigger(minutes=1))
+#     trigger = CronTrigger(hour=16, minute=0)
+#     scheduler.add_job(update_tokens, trigger)
 #     scheduler.start()
+
+
+def activate_background_task():
+    """Запуск фоновой задачи update_tokens"""
+
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(update_tokens, IntervalTrigger(minutes=5))
+    scheduler.start()
