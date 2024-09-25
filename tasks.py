@@ -60,5 +60,5 @@ def activate_background_task():
     """Запуск фоновой задачи update_tokens"""
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_tokens, IntervalTrigger(minutes=5))
+    scheduler.add_job(update_tokens, IntervalTrigger(minutes=2))
     scheduler.start()
