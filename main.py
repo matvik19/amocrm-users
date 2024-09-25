@@ -2,11 +2,14 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.log_config import setup_logging
 from src.users.routers import router as router_users
 from src.widgets.routers import router as router_widgets
 
 from tasks import activate_background_task
+from loguru import logger
 
+setup_logging()
 app = FastAPI(title="Allocation widget")
 
 app.add_middleware(
@@ -22,10 +25,9 @@ app.include_router(router_users)
 app.include_router(router_widgets)
 
 
-
 @app.on_event("startup")
 async def startup_event():
-    print("Запустились")
+    logger.info("Service users has been started")
     activate_background_task()
 
 
