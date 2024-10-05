@@ -9,7 +9,6 @@ from src.widgets.routers import router as router_widgets
 from tasks import activate_background_task
 from loguru import logger
 
-setup_logging()
 app = FastAPI(title="Allocation widget")
 
 app.add_middleware(
@@ -27,6 +26,7 @@ app.include_router(router_widgets)
 
 @app.on_event("startup")
 async def startup_event():
+    setup_logging()
     logger.info("Service users has been started")
     activate_background_task()
 
