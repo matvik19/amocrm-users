@@ -1,3 +1,4 @@
+import pytz
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import Depends
 from loguru import logger
@@ -47,7 +48,9 @@ def activate_background_task():
     """Запуск фоновой задачи update_tokens"""
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_tokens, CronTrigger(hour=13, minute=15, timezone="UTC"))
+
+    moscow_tz = pytz.timezone("Europe/Moscow")
+    scheduler.add_job(update_tokens, CronTrigger(hour=3, minute=0, timezone=moscow_tz))
     scheduler.start()
 
     logger.info("Фоновая задача по обновлению токенов запущена")
