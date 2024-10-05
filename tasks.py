@@ -50,7 +50,7 @@ def activate_background_task():
     scheduler = AsyncIOScheduler()
 
     moscow_tz = pytz.timezone("Europe/Moscow")
-    scheduler.add_job(update_tokens, CronTrigger(hour=3, minute=0, timezone=moscow_tz))
+    scheduler.add_job(update_tokens, CronTrigger(hour=17, minute=11, timezone=moscow_tz))
     scheduler.start()
 
     logger.info("Фоновая задача по обновлению токенов запущена")
