@@ -2,19 +2,9 @@ version: "3.8"
 networks:
   app_net:
     driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1400
+  postgres_network:
+      external: true
 services:
-  db:
-    image: postgres:latest
-    container_name: users_amo_db
-    ports:
-      - 5432:5432
-    env_file:
-      - .env-non-dev
-    networks:
-      - app_net
-
   app:
     build:
       context: .
@@ -24,6 +14,7 @@ services:
     ports:
       - 7000:8000
     depends_on:
-      - db
+      - postgres_db
     networks:
       - app_net
+      - postgres_network
