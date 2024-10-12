@@ -1,4 +1,6 @@
 networks:
+  rabbitmq_rabbit-net:
+    external: true
   postgres_network:
       external: true
 services:
@@ -12,3 +14,4 @@ services:
       - "7000:8000"
     networks:
       - postgres_network
+      - rabbitmq_rabbit-net
