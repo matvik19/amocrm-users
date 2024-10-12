@@ -1,6 +1,4 @@
 networks:
-  app_net:
-    driver: bridge
   postgres_network:
       external: true
 services:
@@ -13,5 +11,4 @@ services:
     ports:
       - "7000:8000"
     networks:
-      - app_net
       - postgres_network
