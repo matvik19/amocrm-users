@@ -11,7 +11,7 @@ from src.widgets.schemas import WidgetResponse, WidgetCreate
 router = APIRouter(prefix="/widgets", tags=["Widgets"])
 
 
-@router.post("/add_widget", response_model=WidgetResponse)
+@router.post("/create_acw", response_model=WidgetResponse)
 async def add_widget(widget: WidgetCreate, session: AsyncSession = Depends(get_async_session)) -> WidgetResponse:
     """Добавление нового виджета в базу данных"""
     existing_widget = await session.execute(
@@ -48,7 +48,7 @@ async def add_widget(widget: WidgetCreate, session: AsyncSession = Depends(get_a
 
 
 # Роут для получения всех записей
-@router.get("/get_widgets", response_model=List[WidgetResponse])
+@router.get("/get_all_acw", response_model=List[WidgetResponse])
 async def get_widgets(session: AsyncSession = Depends(get_async_session)) -> List[WidgetResponse]:
     """Получение всех виджетов из базы данных"""
     result = await session.execute(select(Widgets))
@@ -66,7 +66,7 @@ async def get_widgets(session: AsyncSession = Depends(get_async_session)) -> Lis
 
 
 # Роут для получения одного виджета по client_id
-@router.get("/get_widget", response_model=WidgetResponse)
+@router.get("/get_acw", response_model=WidgetResponse)
 async def get_widget(client_id: str, session: AsyncSession = Depends(get_async_session)) -> WidgetResponse:
     """Получение виджета по client_id"""
     result = await session.execute(select(Widgets).where(Widgets.client_id == client_id))
@@ -84,7 +84,7 @@ async def get_widget(client_id: str, session: AsyncSession = Depends(get_async_s
 
 
 # Роут для удаления записи по client_id
-@router.delete("/delete_widget", response_model=dict)
+@router.delete("/del_acw", response_model=dict)
 async def delete_widget(client_id: str, session: AsyncSession = Depends(get_async_session)) -> dict:
     """Удаление виджета по client_id"""
     result = await session.execute(select(Widgets).where(Widgets.client_id == client_id))
