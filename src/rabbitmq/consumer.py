@@ -26,7 +26,7 @@ async def process_message(message: aio_pika.IncomingMessage, process_func, conne
 
             # Если присутствует reply_to, отправляем ответ
             if message.reply_to and message.correlation_id:
-                response_body = json.dumps(result)
+                response_body = json.dumps(result.dict())
                 await send_response_message(
                     connection_url,
                     response_body,

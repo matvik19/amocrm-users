@@ -72,7 +72,7 @@ async def start_token_add_user_consumer():
     print(f"Connecting to RabbitMQ at {connection_url}")
 
     await start_consumer(
-        "token_add_user", connection_url, process_get_settings_user
+        "tokens_add_user", connection_url, process_get_settings_user
     )
 
     logger.info("Consumer for 'leads_allocate_get_users' started.")
